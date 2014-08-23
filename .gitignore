@@ -34,3 +34,7 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+*.old
+ConnectedWorlds/obj/ConnectedWorldsLibrary.xml
+ConnectedWorlds/obj/ConnectedWorldsResources.swf

@@ -5,6 +5,7 @@ import flash.display.Shape;
 import flash.display.Sprite;
 import flash.ui.Keyboard;
 import furusystems.cw.Letter;
+import tween.utils.Stopwatch;
 using furusystems.cw.MathUtils;
 /**
  * ...
@@ -19,20 +20,24 @@ class Lover extends Sprite
 	public var velocity:Vector2D;
 	public var onGround:Bool;
 	static private inline var MOVESPD:Float = 2;
-	static private inline var JUMP_IMP:Float = 2;
+	static private inline var JUMP_IMP:Float = 3.5;
 	var game:Game;
 	static private inline var CATCH_BUFFER:Float = 1.2;
 	public var normalIndicator:flash.display.Shape;
+	var jumpDelay:Float;
+	
+	public var mass:Float = 4;
 	public function new(game:Game, inverted:Bool = false) 
 	{
 		super();
+		jumpDelay = 0;
 		this.game = game;
 		this.inverted = inverted;
 		velocity = new Vector2D();
 		if (inverted) {
-			gravity = new Vector2D(0, -Game.GRAV);
+			gravity = new Vector2D(0, -Game.GRAV*mass);
 		}else {
-			gravity = new Vector2D(0, Game.GRAV);
+			gravity = new Vector2D(0, Game.GRAV*mass);
 		}
 		redraw();
 		cacheAsBitmap = true;
@@ -60,7 +65,8 @@ class Lover extends Sprite
 		onGround = Math.abs(floor - y) < 8;
 		var key = !inverted?Keyboard.UP:Keyboard.DOWN;
 		
-		if (Kbd.keyWasStruck(key) && onGround) {
+		if ((jumpDelay -= Stopwatch.delta) <= 0 && Kbd.keyWasStruck(key) && onGround) {
+			jumpDelay = 0.2;
 			y = floor;
 			onGround = false;
 			if (inverted) {

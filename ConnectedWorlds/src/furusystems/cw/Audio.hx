@@ -14,6 +14,7 @@ class Audio
 	public var throwSnd:SfxrSynth;
 	public var catchSnd:SfxrSynth;
 	public var deathSound:SfxrSynth;
+	public var passCheckpoint:SfxrSynth;
 	public function new() 
 	{
 		var params = new SfxrParams();
@@ -40,6 +41,11 @@ class Audio
 		params.generateExplosion();
 		deathSound = new SfxrSynth();
 		deathSound.params = params;
+		
+		params = new SfxrParams();
+		params.generateBlipSelect();
+		passCheckpoint = new SfxrSynth();
+		passCheckpoint.params = params;
 	}
 	
 }

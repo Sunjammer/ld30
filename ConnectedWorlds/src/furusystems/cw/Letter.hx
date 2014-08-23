@@ -15,11 +15,12 @@ class Letter extends Sprite
 	public var held:Bool;
 	public var gravity:Vector2D;
 	public var velocity:Vector2D;
+	public var mass:Float = 0.6;
 	public function new(game:Game) 
 	{
 		super();
 		velocity = new Vector2D();
-		gravity = new Vector2D(0, Game.GRAV);
+		gravity = new Vector2D(0, Game.GRAV*mass);
 		this.game = game;
 		graphics.beginFill(0);
 		graphics.drawRect( -LETTER_SIZE*.5, -LETTER_SIZE*.5, LETTER_SIZE, LETTER_SIZE);

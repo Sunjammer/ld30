@@ -2,6 +2,7 @@ package furusystems.cw;
 import com.furusystems.flywheel.geom.Vector2D;
 import com.furusystems.flywheel.math.SimplexNoise;
 import com.furusystems.flywheel.math.WaveShaper;
+import com.furusystems.flywheel.utils.data.Color4;
 import com.furusystems.hxfxr.SfxrParams;
 import com.furusystems.hxfxr.SfxrSynth;
 import flash.display.Bitmap;
@@ -20,6 +21,10 @@ import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.geom.Vector3D;
+import flash.media.Sound;
+import flash.media.SoundChannel;
+import flash.media.SoundTransform;
+import flash.net.URLRequest;
 import flash.ui.Keyboard;
 import furusystems.console.Console;
 import furusystems.cw.Game.Spawn;
@@ -53,6 +58,10 @@ class Game extends Sprite
 	var phasesB:Array<Float>;
 	var popStamp:Shape;
 	var noise:com.furusystems.flywheel.math.SimplexNoise;
+	
+	var colorA:Int;
+	var colorB:Int;
+	
 	public var dude:Lover;
 	public var dudette:Lover;
 	var gameContainer:Sprite;
@@ -81,6 +90,7 @@ class Game extends Sprite
 	
 	static var utilVec:Vector2D = new Vector2D();
 	var spawnTimer:Float = 0;
+	var checkpointTimer:Float = 0;
 	
 	public var multiplier:Int;
 	public var score:Float;
@@ -90,6 +100,9 @@ class Game extends Sprite
 	var throwIndicator:ThrowIndicator;
 	var bg:Background;
 	var paused:Bool;
+	var music:SoundChannel;
+	var checkPointPos:Int;
+	var checkPointCrossed:Bool;
 	
 	public var letterActive:Bool;
 	public function new() 
@@ -105,6 +118,7 @@ class Game extends Sprite
 	
 	public function throwLetter() 
 	{
+		if (throwing) return;
 		recatchable = false;
 		var throwVec = new Vector2D(letterHolder.velocity.x+1);
 		if (letterHolder.inverted) {
@@ -134,6 +148,7 @@ class Game extends Sprite
 	
 	public function failState(fs:FailStates) 
 	{
+		if (music != null) music.stop();
 		audio.deathSound.playMutated();
 		trace("Score: " + score);
 		switch(fs) {
@@ -149,11 +164,35 @@ class Game extends Sprite
 	
 	function reset() 
 	{
+		if (music != null) {
+			music.stop();
+		}
+		//music = new Sound(new URLRequest("moon3.mp3")).play(0, 9999, new SoundTransform(0.4));
+		
 		paused = false;
 		inverter.visible = false;
 		time = 0;
 		multiplier = 1;
 		score = 0;
+		checkPointCrossed = true;
+		checkpointTimer = 5 + Std.random(5);
+		
+		dude.velocity.zero();
+		dudette.velocity.zero();
+		
+		var c = new Color4();
+		c.r = Math.random();
+		c.g = Math.random();
+		c.b = Math.random();
+		c.a = 1;
+		
+		colorA = c.toHex();
+		
+		c.r = Math.random();
+		c.g = Math.random();
+		c.b = Math.random();
+		c.a = 1;
+		colorB = c.toHex();
 		
 		gui.x = -300;
 		Delta.tween(gui).wait(1).prop("x", 6, 1).ease(Back.easeOut);
@@ -410,6 +449,25 @@ class Game extends Sprite
 		throwIndicator.onCatch();
 	}
 	
+	function checkPoint() {
+		checkPointCrossed = false;
+		checkPointPos = GAME_WIDTH;
+		checkpointTimer = 5 + Std.random(5);
+		var c = new Color4();
+		c.r = Math.random();
+		c.g = Math.random();
+		c.b = Math.random();
+		c.a = 1;
+		
+		colorA = c.toHex();
+		
+		c.r = Math.random();
+		c.g = Math.random();
+		c.b = Math.random();
+		c.a = 1;
+		colorB = c.toHex();
+	}
+	
 	function addMultiplier() 
 	{
 		multiplier++;
@@ -423,6 +481,8 @@ class Game extends Sprite
 			Stopwatch.tick();
 			return;
 		}
+		checkpointTimer -= Stopwatch.delta;
+		if (checkpointTimer <= 0) checkPoint();
 		scale += (1 - scale) * 0.001;
 		time += Stopwatch.delta;
 		score = Std.int(time * multiplier);
@@ -442,6 +502,19 @@ class Game extends Sprite
 		
 		updateEntities();
 		
+		if (!checkPointCrossed) {
+			var letterPos = new Point(letter.x, letter.y);
+			if (letterHolder != null) {
+				letterPos = letterHolder.localToGlobal(letterPos);
+				if (letterPos.x > checkPointPos) failState(LETTER);
+			}else {
+				if (letterPos.x > checkPointPos) {
+					checkPointCrossed = true;
+					audio.passCheckpoint.playMutated();
+				}
+			}
+		}
+		
 		gui.update("Score: " + Std.int(time) + " x " + multiplier + " : " + score+"\nHighest: "+highScore);
 		
 		render();
@@ -460,6 +533,7 @@ class Game extends Sprite
 	{
 		levelGraphic.unlock();
 		levelGraphic.lock();
+		checkPointPos -= SCROLL_SPEED;
 		
 		for(i in 0...SCROLL_SPEED) addLine();
 	}
@@ -500,23 +574,28 @@ class Game extends Sprite
 		a *= h * scale;
 		b *= h * scale;
 		
-		var rect = new Rectangle(levelGraphic.width - 1, 0, 1, a);
-		levelGraphic.fillRect(rect, 0xFFFF0000);
+		var rect = new Rectangle(levelGraphic.width - 1, 0, 1, 0);
+		rect.height = levelGraphic.height - (a + b);
+		rect.y = a;
+		levelGraphic.fillRect(rect, 0x00000000);
+		
+		
+		rect = new Rectangle(levelGraphic.width - 1, 0, 1, a);
+		levelGraphic.fillRect(rect, colorA);
+		levelGraphic.setPixel32(cast rect.x, cast rect.y+rect.height, 0xFF333333);
 		
 		topHeightMap.push(Std.int(a));
 		if (topHeightMap.length > levelGraphic.width) topHeightMap.shift();
 		
 		rect.height = b;
 		rect.y = levelGraphic.height - b;
-		levelGraphic.fillRect(rect, 0xFF00FF00);
+		levelGraphic.fillRect(rect, colorB);
+		levelGraphic.setPixel32(cast rect.x, cast rect.y, 0xFF000000);
 		
 		botHeightMap.push(Std.int(b));
 		if (botHeightMap.length > levelGraphic.width) botHeightMap.shift();
 		
 		
-		rect.height = levelGraphic.height - (a + b);
-		rect.y = a;
-		levelGraphic.fillRect(rect, 0x00000000);
 	}
 	
 }

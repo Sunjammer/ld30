@@ -17,6 +17,10 @@ class Audio
 	public var passCheckpoint:SfxrSynth;
 	public function new() 
 	{
+		regen();
+	}
+	public function regen() {
+		
 		var params = new SfxrParams();
 		params.generateJump();
 		jump1 = new SfxrSynth();

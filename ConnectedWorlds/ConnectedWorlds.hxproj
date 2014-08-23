@@ -28,7 +28,6 @@
   </build>
   <!-- haxelib libraries -->
   <haxelib>
-    <library name="hxsl" />
     <library name="delta" />
     <library name="flywheel" />
     <library name="consolitis" />

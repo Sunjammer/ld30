@@ -103,6 +103,7 @@ class Game extends Sprite
 	var music:SoundChannel;
 	var checkPointPos:Int;
 	var checkPointCrossed:Bool;
+	var invulnerable:Bool;
 	
 	public var letterActive:Bool;
 	public function new() 
@@ -120,7 +121,7 @@ class Game extends Sprite
 	{
 		if (throwing) return;
 		recatchable = false;
-		var throwVec = new Vector2D(letterHolder.velocity.x+1);
+		var throwVec = new Vector2D(letterHolder.velocity.x.clamp( -1, 1) + 1);
 		if (letterHolder.inverted) {
 			throwVec.y = letterHolder.velocity.y.clamp(0, 1) + LETTER_THROW_IMP;
 		}else {
@@ -129,7 +130,7 @@ class Game extends Sprite
 		throwing = true;
 		letter.velocity.copyFrom(throwVec);
 		var n = throwVec.clone().normalize();
-		Delta.tween(letter).propMultiple( { x:n.x * 5, y:n.y * 5 }, 0.15).ease(Back.easeIn).onComplete(releaseLetter);
+		Delta.tween(letter).propMultiple( { x:n.x * 3, y:n.y * 5 }, 0.15).ease(Back.easeIn).onComplete(releaseLetter);
 	}
 	
 	function releaseLetter() {
@@ -148,8 +149,13 @@ class Game extends Sprite
 	
 	public function failState(fs:FailStates) 
 	{
+		switch(fs) {
+			case LOVER(which):
+				if(invulnerable) return;
+			default:
+		}
 		if (music != null) music.stop();
-		audio.deathSound.playMutated();
+		audio.deathSound.play();
 		trace("Score: " + score);
 		switch(fs) {
 			case LETTER:
@@ -167,7 +173,9 @@ class Game extends Sprite
 		if (music != null) {
 			music.stop();
 		}
-		//music = new Sound(new URLRequest("moon3.mp3")).play(0, 9999, new SoundTransform(0.4));
+		
+		audio.regen();
+		//music = new Sound(new URLRequest("gameover2.mp3")).play(0, 9999, new SoundTransform(1));
 		
 		paused = false;
 		inverter.visible = false;
@@ -273,6 +281,7 @@ class Game extends Sprite
 		addChild(gui);
 		
 		console = new Console(true);
+		console.createCommand("godmode", function() { invulnerable = !invulnerable; } );
 		console.visible = false;
 		var w = 150;
 		console.setSize(new Rectangle(0,0, w, 120));
@@ -434,7 +443,8 @@ class Game extends Sprite
 	
 	function catchLetter(holder:Lover) 
 	{
-		audio.catchSnd.playMutated();
+		audio.catchSnd.play();
+		audio.catchSnd.play();
 		var pt = new Point(letter.x, letter.y);
 		pt = holder.globalToLocal(pt);
 		letter.x = pt.x;
@@ -485,6 +495,7 @@ class Game extends Sprite
 		time += Stopwatch.delta;
 		score = Std.int(time * multiplier);
 		highScore = Math.max(highScore, score);
+		
 		spawnTimer += Stopwatch.delta;
 		if (spawnTimer > 1) {
 			spawnTimer -= 1;
@@ -498,20 +509,20 @@ class Game extends Sprite
 			}
 		}
 		
+		
 		updateEntities();
 		
 		if (!checkPointCrossed) {
 			var letterPos = new Point(letter.x, letter.y);
 			if (letterHolder != null) {
 				letterPos = letterHolder.localToGlobal(letterPos);
-				if (letterPos.x > checkPointPos) failState(LETTER);
+				if (letterPos.x > checkPointPos && !invulnerable) failState(LETTER);
 			}else {
 				if (letterPos.x > checkPointPos) {
 					checkPointCrossed = true;
 					addMultiplier();
 					
-					//SCROLL_SPEED = 2;
-					audio.passCheckpoint.playMutated();
+					audio.passCheckpoint.play();
 				}
 			}
 		}

@@ -104,6 +104,7 @@ class Game extends Sprite
 	var checkPointPos:Int;
 	var checkPointCrossed:Bool;
 	var invulnerable:Bool;
+	var starField:StarField;
 	
 	public var letterActive:Bool;
 	public function new() 
@@ -256,7 +257,9 @@ class Game extends Sprite
 		Kbd.init(stage);
 		bg = new Background();
 		
+		starField = new StarField();
 		gameContainer.addChild(bg);
+		gameContainer.addChild(starField);
 		
 		levelGraphic = new BitmapData(GAME_WIDTH, GAME_HEIGHT,true,0);
 		var bmd:Bitmap = cast gameContainer.addChild(new Bitmap(levelGraphic, PixelSnapping.ALWAYS, true));
@@ -489,6 +492,7 @@ class Game extends Sprite
 			Stopwatch.tick();
 			return;
 		}
+		starField.update();
 		checkpointTimer -= Stopwatch.delta;
 		if (checkpointTimer <= 0) checkPoint();
 		scale += (1 - scale) * 0.001;

@@ -1,0 +1,11 @@
+-lib hxsl
+-lib delta
+-lib flywheel
+-lib consolitis
+-lib hxfxr
+-cp src
+-swf bin/ConnectedWorlds.swf
+-swf-header 640:480:60:FFFFFF
+-swf-lib obj\ConnectedWorldsResources.swf
+-swf-version 11.3
+-main furusystems.cw.Main

@@ -141,10 +141,9 @@ class Game extends Sprite
 		gameContainer.addChild(letter); 
 		letter.x = pt.x;
 		letter.y = pt.y;
+		letterHolder.addChild(throwIndicator);
 		letterHolder = null; 
 		throwing = false;
-		throwIndicator.x = letter.x;
-		throwIndicator.y = letter.y;
 		throwIndicator.onRelease();
 	}
 	
@@ -250,7 +249,6 @@ class Game extends Sprite
 		dudette = new Lover(this);
 		letter = new Letter(this);
 		throwIndicator = new ThrowIndicator();
-		throwIndicator.x = throwIndicator.y = 120;
 		
 		noise = new SimplexNoise();
 		
@@ -446,6 +444,7 @@ class Game extends Sprite
 	
 	function catchLetter(holder:Lover) 
 	{
+		if (holder != previousHolder) letter.redraw();
 		audio.catchSnd.play();
 		audio.catchSnd.play();
 		var pt = new Point(letter.x, letter.y);
@@ -454,8 +453,7 @@ class Game extends Sprite
 		letter.y = pt.y;
 		holder.addChild(letter);
 		letterHolder = previousHolder = holder;
-		throwIndicator.x = letterHolder.x;
-		throwIndicator.y = letterHolder.y;
+		letterHolder.addChild(throwIndicator);
 		throwIndicator.onCatch();
 	}
 	
@@ -598,7 +596,7 @@ class Game extends Sprite
 		
 		rect = new Rectangle(levelGraphic.width - 1, 0, 1, a);
 		levelGraphic.fillRect(rect, colorA);
-		levelGraphic.setPixel32(cast rect.x, cast rect.y+rect.height, 0xFF333333);
+		levelGraphic.setPixel32(cast rect.x, cast rect.y+rect.height, 0xFFFFFFFF);
 		
 		topHeightMap.push(Std.int(a));
 		if (topHeightMap.length > levelGraphic.width) topHeightMap.shift();
@@ -606,7 +604,7 @@ class Game extends Sprite
 		rect.height = b;
 		rect.y = levelGraphic.height - b;
 		levelGraphic.fillRect(rect, colorB);
-		levelGraphic.setPixel32(cast rect.x, cast rect.y, 0xFF000000);
+		levelGraphic.setPixel32(cast rect.x, cast rect.y, 0xFFFFFFFF);
 		
 		botHeightMap.push(Std.int(b));
 		if (botHeightMap.length > levelGraphic.width) botHeightMap.shift();

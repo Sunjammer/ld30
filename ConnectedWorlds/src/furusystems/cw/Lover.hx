@@ -51,6 +51,7 @@ class Lover extends Sprite
 		graphics.clear();
 		var c = Std.random(0xFFFFFF);
 		graphics.beginFill(c);
+		graphics.lineStyle(2, 0xFFFFFF);
 		graphics.drawCircle(0, 0, DUDESIZE);
 		filters = [new GlowFilter(c, 0.3, 16, 16,1,3)];
 	}

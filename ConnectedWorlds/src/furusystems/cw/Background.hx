@@ -23,6 +23,7 @@ class Background extends Sprite
 		graphics.beginFill(Std.random(0xFFFFFF), 0.4);
 		graphics.drawRect(0, Game.GAME_HEIGHT * .5, Game.GAME_WIDTH, Game.GAME_HEIGHT * .5);
 		graphics.endFill();
+		alpha = 0.5;
 		//removeChildren();
 		//var sun = new Shape();
 		//sun.graphics.beginFill(0);

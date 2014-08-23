@@ -82,7 +82,7 @@ class Game extends Sprite
 	
 	public var audio:Audio;
 	
-	static private inline var SCROLL_SPEED:Int = 2;
+	var SCROLL_SPEED:Int = 2;
 	static private inline var LETTER_THROW_IMP:Float = 2;
 	static public inline var GRAV:Float = 0.02;
 	static public inline var GAME_WIDTH:Int = 640;
@@ -129,7 +129,7 @@ class Game extends Sprite
 		throwing = true;
 		letter.velocity.copyFrom(throwVec);
 		var n = throwVec.clone().normalize();
-		Delta.tween(letter).propMultiple( { x:n.x * 5, y:n.y * 5 }, 0.25).ease(Back.easeIn).onComplete(releaseLetter);
+		Delta.tween(letter).propMultiple( { x:n.x * 5, y:n.y * 5 }, 0.15).ease(Back.easeIn).onComplete(releaseLetter);
 	}
 	
 	function releaseLetter() {
@@ -211,6 +211,7 @@ class Game extends Sprite
 		bg.redraw();
 		dude.redraw();
 		dudette.redraw();
+		letter.redraw();
 		
 		dude.y = dudette.y = GAME_HEIGHT * 0.5;
 		dude.x = dudette.x = GAME_WIDTH * 0.1;
@@ -221,10 +222,6 @@ class Game extends Sprite
 	private function onAddedToStage(e:Event):Void 
 	{
 		audio = new Audio();
-		
-		stage.quality = StageQuality.LOW;
-		stage.scaleMode = StageScaleMode.NO_SCALE;
-		stage.align = StageAlign.TOP_LEFT;
 		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		addEventListener(Event.ENTER_FRAME, onUpdate);
 		
@@ -450,6 +447,7 @@ class Game extends Sprite
 	}
 	
 	function checkPoint() {
+		//SCROLL_SPEED = 1;
 		checkPointCrossed = false;
 		checkPointPos = GAME_WIDTH;
 		checkpointTimer = 5 + Std.random(5);
@@ -510,6 +508,9 @@ class Game extends Sprite
 			}else {
 				if (letterPos.x > checkPointPos) {
 					checkPointCrossed = true;
+					addMultiplier();
+					
+					//SCROLL_SPEED = 2;
 					audio.passCheckpoint.playMutated();
 				}
 			}

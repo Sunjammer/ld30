@@ -3,6 +3,7 @@ import com.furusystems.flywheel.geom.Vector2D;
 import com.furusystems.hxfxr.SfxrSynth;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.filters.GlowFilter;
 import flash.ui.Keyboard;
 import furusystems.cw.Letter;
 import tween.utils.Stopwatch;
@@ -42,14 +43,16 @@ class Lover extends Sprite
 		redraw();
 		cacheAsBitmap = true;
 		normalIndicator = new Shape();
-		addChild(normalIndicator);
+		//addChild(normalIndicator);
 		normalIndicator.graphics.lineStyle(0);
 		normalIndicator.graphics.lineTo(10, 0);
 	}
 	public function redraw() {
 		graphics.clear();
-		graphics.beginFill(Std.random(0xFFFFFF));
+		var c = Std.random(0xFFFFFF);
+		graphics.beginFill(c);
 		graphics.drawCircle(0, 0, DUDESIZE);
+		filters = [new GlowFilter(c, 0.3, 16, 16,1,3)];
 	}
 	
 	public function update(floor:Float) {

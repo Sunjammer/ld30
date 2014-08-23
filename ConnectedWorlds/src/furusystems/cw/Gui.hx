@@ -19,9 +19,9 @@ class Gui extends Sprite
 		out = new TextField();
 		out.autoSize = TextFieldAutoSize.LEFT;
 		out.mouseEnabled = false;
-		out.defaultTextFormat = new TextFormat("_sans", 16, 0x333333, true);
+		out.defaultTextFormat = new TextFormat("_sans", 16, 0, true);
 		out.text = "Hello world";
-		//filters = [new DropShadowFilter(0, 0, 0,1, 16, 16, 1,3)];
+		blendMode = INVERT;
 		alpha = 0.8;
 		x = 4;
 		y = 240 - 20;

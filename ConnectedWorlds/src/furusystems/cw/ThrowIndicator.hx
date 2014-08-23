@@ -17,6 +17,7 @@ class ThrowIndicator extends Sprite
 		graphics.drawCircle(0, 0, radius);
 		graphics.drawCircle(0, 0, radius-3);
 		graphics.endFill();
+		blendMode = INVERT;
 	}
 	public function onCatch() {
 		scaleX = scaleY = 1;

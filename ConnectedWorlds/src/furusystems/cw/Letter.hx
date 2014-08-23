@@ -2,6 +2,7 @@ package furusystems.cw;
 import com.furusystems.flywheel.geom.Vector2D;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.filters.GlowFilter;
 import furusystems.cw.Game.FailStates;
 
 /**
@@ -22,7 +23,14 @@ class Letter extends Sprite
 		velocity = new Vector2D();
 		gravity = new Vector2D(0, Game.GRAV*mass);
 		this.game = game;
-		graphics.beginFill(0);
+		redraw();
+	}
+	
+	public function redraw() {
+		graphics.clear();
+		var c = Std.random(0xFFFFFF);
+		filters = [new GlowFilter(c, 0.3, 16, 16,1,3)];
+		graphics.beginFill(c);
 		graphics.drawRect( -LETTER_SIZE*.5, -LETTER_SIZE*.5, LETTER_SIZE, LETTER_SIZE);
 		graphics.endFill();
 	}

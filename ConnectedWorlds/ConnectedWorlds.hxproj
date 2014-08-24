@@ -19,7 +19,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="" />
+    <option directives="online" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="furusystems.cw.Main" />
@@ -32,6 +32,8 @@
     <library name="flywheel" />
     <library name="consolitis" />
     <library name="hxfxr" />
+    <library name="fsignal" />
+    <library name="scoreoid" />
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>

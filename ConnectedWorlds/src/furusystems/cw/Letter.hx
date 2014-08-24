@@ -28,9 +28,11 @@ class Letter extends Sprite
 	
 	public function redraw() {
 		graphics.clear();
+		//var c = game.currentPalette().colors[Std.random(3)];
 		var c = Std.random(0xFFFFFF);
 		filters = [new GlowFilter(0xFFFFFF, 0.3, 16, 16,1,3)];
 		graphics.beginFill(c);
+		graphics.lineStyle(0, 0xFFFFFF);
 		graphics.drawRect( -LETTER_SIZE*.5, -LETTER_SIZE*.5, LETTER_SIZE, LETTER_SIZE);
 		graphics.endFill();
 	}

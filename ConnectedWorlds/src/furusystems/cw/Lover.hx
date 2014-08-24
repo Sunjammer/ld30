@@ -49,7 +49,12 @@ class Lover extends Sprite
 	}
 	public inline function redraw() {
 		graphics.clear();
-		var c = Std.random(0xFFFFFF);
+		var c:Int;
+		if (inverted) {
+			c = game.secondaryPalette().complimentaries[2];
+		}else {
+			c = game.primaryPalette().complimentaries[2];
+		}
 		graphics.beginFill(c);
 		graphics.lineStyle(2, 0xFFFFFF);
 		graphics.drawCircle(0, 0, DUDESIZE);

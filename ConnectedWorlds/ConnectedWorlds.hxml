@@ -2,9 +2,12 @@
 -lib flywheel
 -lib consolitis
 -lib hxfxr
+-lib fsignal
+-lib scoreoid
 -cp src
 -swf bin/ConnectedWorlds.swf
 -swf-header 640:480:60:000000
 -swf-lib obj\ConnectedWorldsResources.swf
 -swf-version 11.3
+-D online
 -main furusystems.cw.Main

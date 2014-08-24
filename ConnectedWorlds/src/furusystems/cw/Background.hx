@@ -10,17 +10,19 @@ import flash.filters.BlurFilter;
  */
 class Background extends Sprite
 {
+	var game:Game;
 
-	public function new() 
+	public function new(game:Game) 
 	{
 		super();
+		this.game = game;
 		redraw();
 		//alpha = 0.3;
 	}
 	public function redraw() {
-		graphics.beginFill(Std.random(0xFFFFFF), 0.4);
+		graphics.beginFill(game.primaryPalette().colors[3], 0.4);
 		graphics.drawRect(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT*.5);
-		graphics.beginFill(Std.random(0xFFFFFF), 0.4);
+		graphics.beginFill(game.secondaryPalette().colors[3], 0.4);
 		graphics.drawRect(0, Game.GAME_HEIGHT * .5, Game.GAME_WIDTH, Game.GAME_HEIGHT * .5);
 		graphics.endFill();
 		alpha = 0.5;

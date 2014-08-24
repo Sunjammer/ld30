@@ -2,6 +2,7 @@ package furusystems.cw;
 import com.furusystems.flywheel.geom.Vector2D;
 import com.furusystems.flywheel.math.SimplexNoise;
 import com.furusystems.flywheel.math.WaveShaper;
+import com.furusystems.flywheel.utils.data.Color3;
 import com.furusystems.flywheel.utils.data.Color4;
 import com.furusystems.hxfxr.SfxrParams;
 import com.furusystems.hxfxr.SfxrSynth;
@@ -28,6 +29,8 @@ import flash.media.SoundTransform;
 import flash.net.URLRequest;
 import flash.ui.Keyboard;
 import furusystems.console.Console;
+import furusystems.cw.colors.Palette;
+import furusystems.cw.colors.Picker;
 import furusystems.cw.Game.Spawn;
 import furusystems.cw.Lover;
 import scoreoid.Scoreoid;
@@ -60,6 +63,8 @@ class Game extends Sprite
 	var phasesB:Array<Float>;
 	var popStamp:Shape;
 	var noise:com.furusystems.flywheel.math.SimplexNoise;
+	
+	var palettes:Array<Palette>;
 	
 	var colorA:Int;
 	var colorB:Int;
@@ -110,7 +115,24 @@ class Game extends Sprite
 	public function new() 
 	{
 		super();
+		palettes = [];
+		var picker:Picker = new Picker();
+		for (i in 0...40) {
+			palettes.push(picker.getPalette(Math.random() * 6.28, Math.random(), 1.1, 0.2,  Math.random() * 0.5 + 0.5, Math.random()));
+		}
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+	}
+	
+	public function primaryPalette():Palette {
+		return palettes[0];
+	}
+	public function secondaryPalette():Palette {
+		return palettes[1];
+	}
+	
+	function nextPalette():Void {
+		palettes.unshift(palettes.pop());
+		palettes.unshift(palettes.pop());
 	}
 	
 	function pickHolder() 
@@ -162,11 +184,11 @@ class Game extends Sprite
 		if (Scoreoid.lastResult.getHighest().score < score) {
 			switch(fs) {
 				case LETTER:
-					gui.die("Letter dropped\nWORLD RECORD");
+					gui.die("Letter dropped\nWORLD RECORD\n"+score);
 				case LOVER(which):
-					gui.die("Death\nWORLD RECORD");
+					gui.die("Death\nWORLD RECORD\n"+score);
 				case CHECKPOINT:
-					gui.die("Failed checkpoint\nWORLD RECORD");
+					gui.die("Failed checkpoint\nWORLD RECORD\n"+score);
 			}
 			
 			Scoreoid.postScore("Developer", Std.int(score), true).addOnce(
@@ -178,11 +200,11 @@ class Game extends Sprite
 		}else {		
 			switch(fs) {
 				case LETTER:
-					gui.die("Letter dropped");
+					gui.die("Letter dropped\n"+score);
 				case LOVER(which):
-					gui.die("Death");
+					gui.die("Death\n"+score);
 				case CHECKPOINT:
-					gui.die("Failed checkpoint");
+					gui.die("Failed checkpoint\n"+score);
 			}
 			Delta.delayCall(reset, 1);
 		}
@@ -190,11 +212,11 @@ class Game extends Sprite
 		Delta.delayCall(reset, 1);
 		switch(fs) {
 			case LETTER:
-				gui.die("Letter dropped");
+				gui.die("Letter dropped\n"+score);
 			case LOVER(which):
-				gui.die("Death");
+				gui.die("Death\n"+score);
 			case CHECKPOINT:
-				gui.die("Failed checkpoint");
+				gui.die("Failed checkpoint\n"+score);
 		}
 		#end
 		inverter.visible = true;
@@ -204,8 +226,9 @@ class Game extends Sprite
 	
 	function updateScores(e:ScoreResult) 
 	{
-		trace(e);
-		Delta.delayCall(reset, 1);
+		audio.jump1.play();
+		audio.jump2.play();
+		Delta.delayCall(reset, 3);
 	}
 	
 	function reset() 
@@ -230,19 +253,19 @@ class Game extends Sprite
 		dude.velocity.zero();
 		dudette.velocity.zero();
 		
-		var c = new Color4();
-		c.r = Math.random();
-		c.g = Math.random();
-		c.b = Math.random();
-		c.a = 1;
+		//var c = new Color4();
+		//c.r = Math.random();
+		//c.g = Math.random();
+		//c.b = Math.random();
+		//c.a = 1;
+		nextPalette();
+		colorA = Color4.fromColor3(Color3.fromHex(primaryPalette().complimentaries[2])).toHex();
+		colorB = Color4.fromColor3(Color3.fromHex(secondaryPalette().complimentaries[2])).toHex();
 		
-		colorA = c.toHex();
-		
-		c.r = Math.random();
-		c.g = Math.random();
-		c.b = Math.random();
-		c.a = 1;
-		colorB = c.toHex();
+		//c.r = Math.random();
+		//c.g = Math.random();
+		//c.b = Math.random();
+		//c.a = 1;
 		
 		gui.x = -300;
 		Delta.tween(gui).wait(1).prop("x", 6, 1).ease(Back.easeOut);
@@ -298,7 +321,7 @@ class Game extends Sprite
 		noise = new SimplexNoise();
 		
 		Kbd.init(stage);
-		bg = new Background();
+		bg = new Background(this);
 		
 		starField = new StarField();
 		gameContainer.addChild(bg);
@@ -509,19 +532,9 @@ class Game extends Sprite
 		checkPointCrossed = false;
 		checkPointPos = GAME_WIDTH;
 		checkpointTimer = 5 + Std.random(5);
-		var c = new Color4();
-		c.r = Math.random();
-		c.g = Math.random();
-		c.b = Math.random();
-		c.a = 1;
-		
-		colorA = c.toHex();
-		
-		c.r = Math.random();
-		c.g = Math.random();
-		c.b = Math.random();
-		c.a = 1;
-		colorB = c.toHex();
+		nextPalette();
+		colorA = Color4.fromColor3(Color3.fromHex(primaryPalette().complimentaries[2])).toHex();
+		colorB = Color4.fromColor3(Color3.fromHex(secondaryPalette().complimentaries[2])).toHex();
 	}
 	
 	inline function addMultiplier() 
@@ -548,7 +561,7 @@ class Game extends Sprite
 		spawnTimer += Stopwatch.delta;
 		if (spawnTimer > 1) {
 			spawnTimer -= 1;
-			if (Math.random() >= 0.5) {
+			if (Math.random() >= Math.cos(Math.min(0, Math.max(1, time/30))*1.57)*0.6) {
 				if (Math.random() >= 0.5) {
 					createEnemy(MINE(GAME_WIDTH, checkHeightTop(GAME_WIDTH - 1)));
 				}else {
@@ -569,8 +582,9 @@ class Game extends Sprite
 			}else {
 				if (letterPos.x > checkPointPos) {
 					checkPointCrossed = true;
+					bg.redraw();
 					addMultiplier();
-					
+					addMultiplier();
 					audio.passCheckpoint.play();
 				}
 			}

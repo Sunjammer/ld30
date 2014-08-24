@@ -6,6 +6,7 @@ import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 import tween.Delta;
 import tween.easing.Back;
+using furusystems.cw.TextFieldUtils;
 
 /**
  * ...
@@ -26,8 +27,8 @@ class Gui extends Sprite
 		out.text = "Hello world";
 		blendMode = INVERT;
 		alpha = 0.8;
-		x = 4;
-		y = 240 - 20;
+		out.x = 4;
+		out.y = 240 - 20;
 		addChild(out);
 		
 		deathMsg = new TextField();
@@ -45,9 +46,11 @@ class Gui extends Sprite
 	}
 	public function die(text:String):Void {
 		text = text.toUpperCase();
-		deathMsg.x = 260;
-		Delta.tween(deathMsg).prop("x", 250, 0.2).ease(Back.easeOut);
 		deathMsg.text = text;
+		deathMsg.x = 260;
+		var dims = deathMsg.getDims();
+		Delta.tween(deathMsg).prop("x", 250, 0.2).ease(Back.easeOut);
+		deathMsg.y = 240 - dims.height*0.5-dims.y;
 		deathMsg.visible = true;
 	}
 	

@@ -20,7 +20,7 @@ class Lover extends Sprite
 	public var gravity:Vector2D;
 	public var velocity:Vector2D;
 	public var onGround:Bool;
-	static private inline var MOVESPD:Float = 2;
+	static private inline var MOVESPD:Float = 3;
 	static private inline var JUMP_IMP:Float = 3.5;
 	var game:Game;
 	static private inline var CATCH_BUFFER:Float = 1.2;

@@ -30,6 +30,7 @@ import flash.ui.Keyboard;
 import furusystems.console.Console;
 import furusystems.cw.Game.Spawn;
 import furusystems.cw.Lover;
+import scoreoid.Scoreoid;
 import tween.Delta;
 import tween.easing.Back;
 import tween.utils.Stopwatch;
@@ -155,7 +156,38 @@ class Game extends Sprite
 		}
 		if (music != null) music.stop();
 		audio.deathSound.play();
-		trace("Score: " + score);
+		
+		
+		#if online
+		if (Scoreoid.lastResult.getHighest().score < score) {
+			switch(fs) {
+				case LETTER:
+					gui.die("Letter dropped\nWORLD RECORD");
+				case LOVER(which):
+					gui.die("Death\nWORLD RECORD");
+				case CHECKPOINT:
+					gui.die("Failed checkpoint\nWORLD RECORD");
+			}
+			
+			Scoreoid.postScore("Developer", Std.int(score), true).addOnce(
+				function(e) {
+					updateScores(e);
+					trace("New scores: " + e); 
+				}
+			);
+		}else {		
+			switch(fs) {
+				case LETTER:
+					gui.die("Letter dropped");
+				case LOVER(which):
+					gui.die("Death");
+				case CHECKPOINT:
+					gui.die("Failed checkpoint");
+			}
+			Delta.delayCall(reset, 1);
+		}
+		#else
+		Delta.delayCall(reset, 1);
 		switch(fs) {
 			case LETTER:
 				gui.die("Letter dropped");
@@ -164,8 +196,15 @@ class Game extends Sprite
 			case CHECKPOINT:
 				gui.die("Failed checkpoint");
 		}
+		#end
 		inverter.visible = true;
 		paused = true;
+		
+	}
+	
+	function updateScores(e:ScoreResult) 
+	{
+		trace(e);
 		Delta.delayCall(reset, 1);
 	}
 	
@@ -232,6 +271,8 @@ class Game extends Sprite
 	
 	private function onAddedToStage(e:Event):Void 
 	{
+		stage.addEventListener(Event.DEACTIVATE, onDeactivate);
+		
 		audio = new Audio();
 		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		addEventListener(Event.ENTER_FRAME, onUpdate);
@@ -298,6 +339,23 @@ class Game extends Sprite
 		reset();
 		
 		//addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+	}
+	
+	private function onDeactivate(e:Event):Void 
+	{
+		stage.addEventListener(Event.ACTIVATE, onActivate);
+		stage.removeEventListener(Event.DEACTIVATE, onDeactivate);
+		removeEventListener(Event.ENTER_FRAME, onUpdate);
+		//paused = true;
+	}
+	
+	private function onActivate(e:Event):Void 
+	{
+		stage.removeEventListener(Event.ACTIVATE, onActivate);
+		stage.addEventListener(Event.DEACTIVATE, onDeactivate);
+		Stopwatch.tick();
+		addEventListener(Event.ENTER_FRAME, onUpdate);
+		//paused = false;
 	}
 	
 	private inline function mousePt():Vector2D {
@@ -518,7 +576,11 @@ class Game extends Sprite
 			}
 		}
 		
-		gui.update("Score: " + Std.int(time) + " x " + multiplier + " : " + score+"\nHighest: "+highScore);
+		#if online
+		gui.update("Score: " + Std.int(time) + " x " + multiplier + " : " + score+"\nWorld rec: " +Scoreoid.lastResult.getHighest().score + "\nSession rec: " + highScore);
+		#else
+		gui.update("Score: " + Std.int(time) + " x " + multiplier + " : " + score+"\nPersonal rec: " + highScore);
+		#end
 		
 		render();
 		

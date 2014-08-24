@@ -47,7 +47,7 @@ class Lover extends Sprite
 		normalIndicator.graphics.lineStyle(0);
 		normalIndicator.graphics.lineTo(10, 0);
 	}
-	public function redraw() {
+	public inline function redraw() {
 		graphics.clear();
 		var c = Std.random(0xFFFFFF);
 		graphics.beginFill(c);
@@ -108,7 +108,7 @@ class Lover extends Sprite
 		x = x.clamp(0, Game.GAME_WIDTH-1);
 	}
 	
-	public function caughtLetter(letter:Letter):Bool 
+	public inline function caughtLetter(letter:Letter):Bool 
 	{
 		var dist = new Vector2D(letter.x, letter.y).distance(new Vector2D(x, y));
 		return dist < DUDESIZE*2;

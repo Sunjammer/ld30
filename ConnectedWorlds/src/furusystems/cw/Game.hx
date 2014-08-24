@@ -17,6 +17,7 @@ import flash.display.StageQuality;
 import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.filters.DropShadowFilter;
 import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -43,11 +44,11 @@ enum Spawn {
 	TURRET(x:Float,y:Float);
 	FIRE(x:Float,y:Float);
 	MINE(x:Float,y:Float);
-	CHECKPOINT(x:Float,y:Float);
 }
 enum FailStates {
 	LETTER;
 	LOVER(which:Lover);
+	CHECKPOINT;
 }
 class Game extends Sprite
 {
@@ -73,11 +74,9 @@ class Game extends Sprite
 	var previousHolder:Lover;
 	var recatchable:Bool;
 	var throwing:Bool;
-	
+	var drawDivider:Bool;
 	var inverter:Shape;
-	
 	var gui:Gui;
-	
 	var enemies:Array<Enemy>;
 	
 	public var audio:Audio;
@@ -159,9 +158,11 @@ class Game extends Sprite
 		trace("Score: " + score);
 		switch(fs) {
 			case LETTER:
-				trace("Letter dropped");
+				gui.die("Letter dropped");
 			case LOVER(which):
-				trace("Lover lost: " + which);
+				gui.die("Death");
+			case CHECKPOINT:
+				gui.die("Failed checkpoint");
 		}
 		inverter.visible = true;
 		paused = true;
@@ -174,6 +175,8 @@ class Game extends Sprite
 			music.stop();
 		}
 		
+		
+		gui.deathMsg.visible = false;
 		audio.regen();
 		//music = new Sound(new URLRequest("gameover2.mp3")).play(0, 9999, new SoundTransform(1));
 		
@@ -241,6 +244,7 @@ class Game extends Sprite
 		popStamp.graphics.drawCircle(8, 8, 16);
 		popStamp.graphics.endFill();
 		
+		
 		gameContainer = new Sprite();
 		addChild(gameContainer);
 		enemyContainer = new Sprite();
@@ -261,6 +265,7 @@ class Game extends Sprite
 		
 		levelGraphic = new BitmapData(GAME_WIDTH, GAME_HEIGHT,true,0);
 		var bmd:Bitmap = cast gameContainer.addChild(new Bitmap(levelGraphic, PixelSnapping.ALWAYS, true));
+		bg.filters = [new DropShadowFilter(0, 0,0xFFFFFF, 0.6, 64, 64, 1, 3, true)];
 		bmd.smoothing = false;
 		
 		gameContainer.addChild(enemyContainer);
@@ -321,23 +326,11 @@ class Game extends Sprite
 			levelGraphic.filledCircle(cast mouseX + Std.random(16) - 8, cast mouseY + Std.random(16) - 8, Std.int(s * 16), 0x00000000);
 		}
 	}
-	function getGradientAtPoint(x:Float, hm:Array<Int>, width:Int = 6):Vector2D {
-		//var x:Int = cast x;
-		//var prev:Float = 0;
-		//var next:Float = 0;
-		//var sampleCount:Int = 0;
-		//
-		//for (i in 0...width) {
-		//}
-		
-		utilVec.normalize();
-		return utilVec;
-	}
 	
-	function checkHeightTop(x:Float):Int {
+	inline function checkHeightTop(x:Float):Int {
 		return topHeightMap[Math.floor(x)];
 	}
-	function checkHeightBot(x:Float):Int {
+	inline function checkHeightBot(x:Float):Int {
 		return levelGraphic.height-botHeightMap[Math.floor(x)];
 	}
 	
@@ -435,11 +428,6 @@ class Game extends Sprite
 		else floor = GAME_HEIGHT;
 		dudette.update(checkHeightBot(dudette.x));
 		
-		if (dudette.onGround) {
-			var n = getGradientAtPoint(dudette.x, botHeightMap);
-			dudette.normalIndicator.rotation = n.angleRad() * 180 / Math.PI;
-		}
-		
 	}
 	
 	function catchLetter(holder:Lover) 
@@ -459,6 +447,7 @@ class Game extends Sprite
 	
 	function checkPoint() {
 		//SCROLL_SPEED = 1;
+		drawDivider = true;
 		checkPointCrossed = false;
 		checkPointPos = GAME_WIDTH;
 		checkpointTimer = 5 + Std.random(5);
@@ -477,7 +466,7 @@ class Game extends Sprite
 		colorB = c.toHex();
 	}
 	
-	function addMultiplier() 
+	inline function addMultiplier() 
 	{
 		multiplier++;
 		trace("Multiplier: " + multiplier);
@@ -518,7 +507,7 @@ class Game extends Sprite
 			var letterPos = new Point(letter.x, letter.y);
 			if (letterHolder != null) {
 				letterPos = letterHolder.localToGlobal(letterPos);
-				if (letterPos.x > checkPointPos && !invulnerable) failState(LETTER);
+				if (letterPos.x > checkPointPos && !invulnerable) failState(CHECKPOINT);
 			}else {
 				if (letterPos.x > checkPointPos) {
 					checkPointCrossed = true;
@@ -536,14 +525,14 @@ class Game extends Sprite
 		Stopwatch.tick();
 	}
 	
-	function createEnemy(spawn:Spawn) 
+	inline function createEnemy(spawn:Spawn) 
 	{
 		var e = new Enemy(spawn);
 		enemies.push(e);
 		enemyContainer.addChild(e);
 	}
 	
-	function render() 
+	inline function render() 
 	{
 		levelGraphic.unlock();
 		levelGraphic.lock();
@@ -591,7 +580,7 @@ class Game extends Sprite
 		var rect = new Rectangle(levelGraphic.width - 1, 0, 1, 0);
 		rect.height = levelGraphic.height - (a + b);
 		rect.y = a;
-		levelGraphic.fillRect(rect, 0x00000000);
+		levelGraphic.fillRect(rect, drawDivider?0x30FFFFFF:0);
 		
 		
 		rect = new Rectangle(levelGraphic.width - 1, 0, 1, a);
@@ -608,6 +597,7 @@ class Game extends Sprite
 		
 		botHeightMap.push(Std.int(b));
 		if (botHeightMap.length > levelGraphic.width) botHeightMap.shift();
+		drawDivider = false;
 		
 		
 	}

@@ -25,7 +25,7 @@ class StarField extends Sprite
 	public function new() 
 	{
 		super();
-		alpha = 0.7;
+		//alpha = 0.7;
 		stars = [];
 		for (i in 0...80) {
 			var s = new Star();

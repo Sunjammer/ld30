@@ -1,8 +1,5 @@
 package furusystems.cw;
-import flash.display.BlendMode;
-import flash.display.Shape;
 import flash.display.Sprite;
-import flash.filters.BlurFilter;
 
 /**
  * ...

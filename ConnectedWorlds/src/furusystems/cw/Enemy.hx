@@ -1,7 +1,6 @@
 package furusystems.cw;
 import flash.display.Sprite;
 import flash.Lib;
-import furusystems.cw.Game.FailStates;
 import furusystems.cw.Game.Spawn;
 import tween.utils.Stopwatch;
 

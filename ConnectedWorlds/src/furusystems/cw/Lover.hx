@@ -1,6 +1,5 @@
 package furusystems.cw;
 import com.furusystems.flywheel.geom.Vector2D;
-import com.furusystems.hxfxr.SfxrSynth;
 import flash.display.Shape;
 import flash.display.Sprite;
 import flash.filters.GlowFilter;

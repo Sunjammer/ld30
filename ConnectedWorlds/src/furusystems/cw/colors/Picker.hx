@@ -1,9 +1,7 @@
 package furusystems.cw.colors;
 import com.furusystems.flywheel.geom.Vector2D;
 import com.furusystems.flywheel.utils.data.Color3;
-import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.display.Sprite;
 import flash.geom.Vector3D;
 import furusystems.cw.colors.Picker.Wheel;
 

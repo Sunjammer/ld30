@@ -1,6 +1,5 @@
 package furusystems.cw;
 import flash.display.Sprite;
-import flash.filters.DropShadowFilter;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;

@@ -1,6 +1,5 @@
 package furusystems.cw;
 import com.furusystems.flywheel.geom.Vector2D;
-import flash.display.Shape;
 import flash.display.Sprite;
 import flash.filters.GlowFilter;
 import furusystems.cw.Game.FailStates;

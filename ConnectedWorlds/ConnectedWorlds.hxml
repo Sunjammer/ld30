@@ -11,3 +11,4 @@
 -swf-version 11.3
 -D online
 -main furusystems.cw.Main
+-dce full

@@ -15,7 +15,8 @@ using furusystems.cw.TextFieldUtils;
 class Gui extends Sprite
 {
 	var out:flash.text.TextField;
-	public var deathMsg:flash.text.TextField;
+	public var deathMsg:TextField;
+	public var counter:TextField;
 
 	public function new() 
 	{
@@ -30,6 +31,12 @@ class Gui extends Sprite
 		out.x = 4;
 		out.y = 240 - 20;
 		addChild(out);
+		
+		counter = new TextField();
+		counter.autoSize = TextFieldAutoSize.LEFT;
+		counter.mouseEnabled = false;
+		counter.defaultTextFormat = new TextFormat("_sans", 32, 0, true);
+		counter.text = "Hello world";
 		
 		deathMsg = new TextField();
 		deathMsg.autoSize = TextFieldAutoSize.LEFT;

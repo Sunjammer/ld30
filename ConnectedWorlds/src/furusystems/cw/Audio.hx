@@ -15,6 +15,7 @@ class Audio
 	public var catchSnd:SfxrSynth;
 	public var deathSound:SfxrSynth;
 	public var passCheckpoint:SfxrSynth;
+	public var damageSound:SfxrSynth;
 	public function new() 
 	{
 		regen();
@@ -39,6 +40,12 @@ class Audio
 		params.generateHitHurt();
 		throwSnd = new SfxrSynth();
 		throwSnd.params = params;
+		
+		params = new SfxrParams();
+		params.masterVolume = vol;
+		params.generateHitHurt();
+		damageSound = new SfxrSynth();
+		damageSound.params = params;
 		
 		params = new SfxrParams();
 		params.masterVolume = vol;

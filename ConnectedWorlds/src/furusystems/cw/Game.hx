@@ -19,6 +19,7 @@ import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.DropShadowFilter;
+import flash.filters.GlowFilter;
 import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -36,6 +37,8 @@ import furusystems.cw.Lover;
 import scoreoid.Scoreoid;
 import tween.Delta;
 import tween.easing.Back;
+import tween.easing.Elastic;
+import tween.easing.Quad;
 import tween.utils.Stopwatch;
 using furusystems.cw.GraphicsUtils;
 using furusystems.cw.MathUtils;
@@ -99,6 +102,7 @@ class Game extends Sprite
 	
 	public var multiplier:Int;
 	public var score:Float;
+	public var baseScore:Float;
 	public var highScore:Float = 0;
 	public var time:Float;
 	
@@ -110,6 +114,7 @@ class Game extends Sprite
 	var checkPointCrossed:Bool;
 	var invulnerable:Bool;
 	var starField:StarField;
+	var bmd:Bitmap;
 	
 	public var letterActive:Bool;
 	public function new() 
@@ -163,10 +168,29 @@ class Game extends Sprite
 		gameContainer.addChild(letter); 
 		letter.x = pt.x;
 		letter.y = pt.y;
+		letter.blendMode = NORMAL;
+		Delta.tween(letter).propMultiple( { scaleX:1, scaleY:1 }, 0.2).ease(Back.easeOut);
 		letterHolder.addChild(throwIndicator);
 		letterHolder = null; 
 		throwing = false;
 		throwIndicator.onRelease();
+	}
+	
+	function catchLetter(holder:Lover) 
+	{
+		if (holder != previousHolder) letter.redraw();
+		audio.catchSnd.play();
+		audio.catchSnd.play();
+		var pt = new Point(letter.x, letter.y);
+		pt = holder.globalToLocal(pt);
+		letter.x = pt.x;
+		letter.y = pt.y;
+		letter.blendMode = INVERT;
+		Delta.tween(letter).propMultiple( { scaleX:.5, scaleY:.5 }, 0.2).ease(Back.easeOut);
+		holder.addChild(letter);
+		letterHolder = previousHolder = holder;
+		letterHolder.addChild(throwIndicator);
+		throwIndicator.onCatch();
 	}
 	
 	public function failState(fs:FailStates) 
@@ -246,7 +270,7 @@ class Game extends Sprite
 		inverter.visible = false;
 		time = 0;
 		multiplier = 1;
-		score = 0;
+		score = baseScore = 0;
 		checkPointCrossed = true;
 		checkpointTimer = 5 + Std.random(5);
 		
@@ -328,9 +352,10 @@ class Game extends Sprite
 		gameContainer.addChild(starField);
 		
 		levelGraphic = new BitmapData(GAME_WIDTH, GAME_HEIGHT,true,0);
-		var bmd:Bitmap = cast gameContainer.addChild(new Bitmap(levelGraphic, PixelSnapping.ALWAYS, true));
-		bg.filters = [new DropShadowFilter(0, 0,0xFFFFFF, 0.6, 64, 64, 1, 3, true)];
+		bmd = cast gameContainer.addChild(new Bitmap(levelGraphic, PixelSnapping.ALWAYS, true));
 		bmd.smoothing = false;
+		bmd.filters = [new GlowFilter(0xFFFFFF, 0.1, 32, 32, 2, 1),new GlowFilter(0xFFFFFF, 0.1, 32, 32, 2, 1)];
+		bg.filters = [new DropShadowFilter(0, 0, 0xFFFFFF, 0.6, 64, 64, 1, 3, true)];
 		
 		gameContainer.addChild(enemyContainer);
 		
@@ -398,14 +423,10 @@ class Game extends Sprite
 		//pop(mouseX * levelGraphic.width/stage.stageWidth, mouseY * levelGraphic.height/stage.stageHeight);
 	}
 	
-	function pop(mouseX:Float, mouseY:Float) 
+	function pop(x:Float, y:Float) 
 	{
-		var s = Math.random()*0.5 + 0.1;
-		levelGraphic.filledCircle(cast mouseX, cast mouseY, Std.int(s * 16), 0x00000000);
-		for (i in 0...(Std.random(8) + 1)) {
-			var s = Math.random()*0.5 + 0.1;
-			levelGraphic.filledCircle(cast mouseX + Std.random(16) - 8, cast mouseY + Std.random(16) - 8, Std.int(s * 16), 0x00000000);
-		}
+		levelGraphic.filledCircle(cast x, cast y, 32, 0x00000000);
+		levelGraphic.circle(cast x, cast y, 32, 0xFFFFFFFF);
 	}
 	
 	inline function checkHeightTop(x:Float):Int {
@@ -441,8 +462,20 @@ class Game extends Sprite
 		var removeList:Array<Enemy> = [];
 		for(e in enemies){
 			e.update( -SCROLL_SPEED, this);
-			if (e.x < -e.width) {
+			if (letterHolder==null && e.distanceBetween(letter) < e.width*0.5) {
+				letter.velocity.y = -letter.velocity.y * 0.6;
+				//pop(e.x, e.y);
+				Delta.tween(e).propMultiple( { scaleX:0, scaleY:0, rotation:180 }, 0.5).ease(Quad.easeOut).onComplete(function() { enemyContainer.removeChild(e); audio.catchSnd.play(); } );
+				audio.damageSound.play();
+				addMultiplier();
+				addMultiplier();
+				addMultiplier();
+				addMultiplier();
+				addMultiplier();
 				removeList.push(e);
+			}else if (e.x < -e.width) {
+				removeList.push(e);
+				enemyContainer.removeChild(e);
 			}
 		}
 		for (e in removeList) {
@@ -511,21 +544,6 @@ class Game extends Sprite
 		
 	}
 	
-	function catchLetter(holder:Lover) 
-	{
-		if (holder != previousHolder) letter.redraw();
-		audio.catchSnd.play();
-		audio.catchSnd.play();
-		var pt = new Point(letter.x, letter.y);
-		pt = holder.globalToLocal(pt);
-		letter.x = pt.x;
-		letter.y = pt.y;
-		holder.addChild(letter);
-		letterHolder = previousHolder = holder;
-		letterHolder.addChild(throwIndicator);
-		throwIndicator.onCatch();
-	}
-	
 	function checkPoint() {
 		//SCROLL_SPEED = 1;
 		drawDivider = true;
@@ -555,13 +573,13 @@ class Game extends Sprite
 		if (checkpointTimer <= 0) checkPoint();
 		scale += (1 - scale) * 0.001;
 		time += Stopwatch.delta;
-		score = Std.int(time * multiplier);
+		score = baseScore+Std.int(time * multiplier);
 		highScore = Math.max(highScore, score);
 		
 		spawnTimer += Stopwatch.delta;
-		if (spawnTimer > 1) {
-			spawnTimer -= 1;
-			if (Math.random() >= Math.cos(Math.min(0, Math.max(1, time/30))*1.57)*0.6) {
+		if (spawnTimer > .8) {
+			spawnTimer -= .8;
+			if (WaveShaper.shape(Math.random(),-0.4) >= Math.cos(Math.min(0, Math.max(1, time/30))*1.57)*0.5) {
 				if (Math.random() >= 0.5) {
 					createEnemy(MINE(GAME_WIDTH, checkHeightTop(GAME_WIDTH - 1)));
 				}else {

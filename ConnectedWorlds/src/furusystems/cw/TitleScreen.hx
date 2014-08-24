@@ -1,8 +1,13 @@
 package furusystems.cw;
+import com.furusystems.hxfxr.SfxrParams;
+import com.furusystems.hxfxr.SfxrSynth;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.Lib;
+import flash.media.Sound;
+import flash.media.SoundTransform;
+import flash.net.URLRequest;
 import flash.ui.Keyboard;
 import tween.Delta;
 import tween.utils.Stopwatch;
@@ -13,6 +18,7 @@ import tween.utils.Stopwatch;
  */	
 class TitleScreen extends Sprite
 {
+	var music:flash.media.SoundChannel;
 
 	public function new() 
 	{
@@ -24,6 +30,7 @@ class TitleScreen extends Sprite
 	private function onAddedToStage(e:Event):Void 
 	{
 		alpha = 0;
+		music = new Sound(new URLRequest("blackwax.mp3")).play(0, 3000, new SoundTransform(0.2));
 		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -39,7 +46,14 @@ class TitleScreen extends Sprite
 	private function onKeyDown(e:KeyboardEvent):Void 
 	{
 		if (e.keyCode == Keyboard.SPACE) {
+			music.stop();
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			var params = new SfxrParams();
+			params.masterVolume = 0.3;
+			params.generateExplosion();
+			var deathSound = new SfxrSynth();
+			deathSound.params = params;
+			deathSound.play();
 			Delta.tween(this).prop("alpha", 0, 0.5).onComplete(exit);
 		}
 	}

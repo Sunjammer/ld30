@@ -76,6 +76,8 @@ class Game extends Sprite
 	var gui:Gui;
 	var enemies:Array<Enemy>;
 	
+	var level:Int;
+	
 	public var audio:Audio;
 	
 	var SCROLL_SPEED:Int = 2;
@@ -103,6 +105,7 @@ class Game extends Sprite
 	var invulnerable:Bool;
 	var starField:StarField;
 	var bmd:Bitmap;
+	static private inline var CHECKPOINT_DURATION:Float = 20;
 	
 	public var letterActive:Bool;
 	public function new() 
@@ -114,6 +117,14 @@ class Game extends Sprite
 			palettes.push(picker.getPalette(Math.random() * 6.28, Math.random(), 1.1, 0.2,  Math.random() * 0.5 + 0.5, Math.random()));
 		}
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+	}
+	
+	public function genDifficultyCurve(t:Float, diff:Float) {
+		var v = MathUtils.tri(0.7+diff*0.1, t * 6.28) * 0.5 + 0.5;
+		v = WaveShaper.shape(v, 0.4);
+		v = WaveShaper.shape(v, -0.9+diff*1);
+		v = 1 - v;
+		return v;
 	}
 	
 	public function primaryPalette():Palette {
@@ -221,14 +232,16 @@ class Game extends Sprite
 			Delta.delayCall(reset, 1);
 		}
 		#else
-		Delta.delayCall(reset, 1);
 		switch(fs) {
 			case LETTER:
 				gui.die("Letter dropped\n"+score);
+				Delta.delayCall(reset, 1);
 			case LOVER(which):
 				gui.die("Death\n"+score);
+				Delta.delayCall(reset, 1);
 			case CHECKPOINT:
-				gui.die("Failed checkpoint\nThrow across borders\n"+score);
+				gui.die("Failed checkpoint\nThrow across borders\n" + score);
+				Delta.delayCall(reset, 3);
 		}
 		#end
 		inverter.visible = true;
@@ -249,18 +262,17 @@ class Game extends Sprite
 			music.stop();
 		}
 		
-		
 		gui.deathMsg.visible = false;
 		audio.regen();
-		//music = new Sound(new URLRequest("gameover2.mp3")).play(0, 9999, new SoundTransform(1));
 		
 		paused = false;
 		inverter.visible = false;
+		level = 1;
 		time = 0;
 		multiplier = 1;
 		score = baseScore = 0;
 		checkPointCrossed = true;
-		checkpointTimer = 5 + Std.random(5);
+		checkpointTimer = CHECKPOINT_DURATION;
 		
 		dude.velocity.zero();
 		dudette.velocity.zero();
@@ -534,10 +546,11 @@ class Game extends Sprite
 	
 	function checkPoint() {
 		//SCROLL_SPEED = 1;
+		level++;
 		drawDivider = true;
 		checkPointCrossed = false;
 		checkPointPos = GAME_WIDTH;
-		checkpointTimer = 5 + Std.random(5);
+		checkpointTimer = CHECKPOINT_DURATION;
 		nextPalette();
 		colorA = Color4.fromColor3(Color3.fromHex(primaryPalette().complimentaries[2])).toHex();
 		colorB = Color4.fromColor3(Color3.fromHex(secondaryPalette().complimentaries[2])).toHex();
@@ -557,27 +570,12 @@ class Game extends Sprite
 			return;
 		}
 		starField.update();
-		checkpointTimer -= Stopwatch.delta;
-		if (checkpointTimer <= 0) checkPoint();
 		scale += (1 - scale) * 0.001;
 		time += Stopwatch.delta;
 		score = baseScore+Std.int(time * multiplier);
 		highScore = Math.max(highScore, score);
 		
-		spawnTimer += Stopwatch.delta;
-		if (spawnTimer > .8) {
-			spawnTimer -= .8;
-			if (WaveShaper.shape(Math.random(),-0.4) >= Math.cos(Math.min(0, Math.max(1, time/30))*1.57)*0.5) {
-				if (Math.random() >= 0.5) {
-					createEnemy(MINE(GAME_WIDTH, checkHeightTop(GAME_WIDTH - 1)));
-				}else {
-					createEnemy(MINE(GAME_WIDTH, checkHeightBot(GAME_WIDTH - 1)));
-				}
-				
-			}
-		}
-		
-		
+		spawnUpdate();
 		updateEntities();
 		
 		if (!checkPointCrossed) {
@@ -605,6 +603,30 @@ class Game extends Sprite
 		render();
 		
 		Stopwatch.tick();
+	}
+	
+	function spawnUpdate() 
+	{
+		
+		checkpointTimer -= Stopwatch.delta;
+		if (checkpointTimer <= 0) checkPoint();
+		var levelTime = (CHECKPOINT_DURATION - checkpointTimer) / CHECKPOINT_DURATION;
+		
+		spawnTimer += Stopwatch.delta;
+		
+		var difficulty = 1-genDifficultyCurve(levelTime, Math.min(1, level / 20));
+		
+		if (spawnTimer > .8) {
+			spawnTimer -= .8;
+			if ((Math.random()*0.8+0.2) < difficulty) {
+				if (Math.random() >= 0.5) {
+					createEnemy(MINE(GAME_WIDTH, checkHeightTop(GAME_WIDTH - 1)));
+				}else {
+					createEnemy(MINE(GAME_WIDTH, checkHeightBot(GAME_WIDTH - 1)));
+				}
+				
+			}
+		}
 	}
 	
 	inline function createEnemy(spawn:Spawn) 

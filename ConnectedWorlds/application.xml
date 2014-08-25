@@ -12,7 +12,7 @@
 	<initialWindow> 
 		<title>ConnectedWorlds</title> 
 		<content>ConnectedWorlds.swf</content> 
-		<systemChrome>standard</systemChrome> 
+		<systemChrome>none</systemChrome> 
 		<transparent>false</transparent> 
 		<visible>true</visible> 
 		<minimizable>true</minimizable> 

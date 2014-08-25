@@ -8,7 +8,7 @@
 -swf bin/ConnectedWorlds.swf
 -swf-header 640:480:60:000000
 -swf-lib obj\ConnectedWorldsResources.swf
--swf-version 11.3
--D online
+-swf-version 11.9
+-D 
 -main furusystems.cw.Main
 -dce full

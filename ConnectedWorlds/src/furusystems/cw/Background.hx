@@ -1,5 +1,7 @@
 package furusystems.cw;
+import flash.display.Shape;
 import flash.display.Sprite;
+import tween.Delta;
 
 /**
  * ...
@@ -13,25 +15,19 @@ class Background extends Sprite
 	{
 		super();
 		this.game = game;
+		addChild(new Shape());
 		redraw();
 		//alpha = 0.3;
 	}
 	public function redraw() {
-		graphics.beginFill(game.primaryPalette().colors[3], 0.4);
-		graphics.drawRect(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT*.5);
-		graphics.beginFill(game.secondaryPalette().colors[3], 0.4);
-		graphics.drawRect(0, Game.GAME_HEIGHT * .5, Game.GAME_WIDTH, Game.GAME_HEIGHT * .5);
-		graphics.endFill();
-		alpha = 0.5;
-		//removeChildren();
-		//var sun = new Shape();
-		//sun.graphics.beginFill(0);
-		//sun.graphics.drawCircle(0, 0, 90);
-		//sun.blendMode = BlendMode.INVERT;
-		//sun.filters = [new BlurFilter(32, 32, 3)];
-		//addChild(sun);
-		//sun.x = Game.GAME_WIDTH * .5;
-		//sun.y = Game.GAME_HEIGHT * .5;
+		var shp = new Shape();
+		shp.graphics.beginFill(game.primaryPalette().colors[3], 0.4);
+		shp.graphics.drawRect(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT*.5);
+		shp.graphics.beginFill(game.secondaryPalette().colors[3], 0.4);
+		shp.graphics.drawRect(0, Game.GAME_HEIGHT * .5, Game.GAME_WIDTH, Game.GAME_HEIGHT * .5);
+		shp.graphics.endFill();
+		addChildAt(shp,0);
+		Delta.tween(getChildAt(1)).prop("alpha", 0, 1).onComplete(removeChildAt.bind(1));
 	}
 	
 }

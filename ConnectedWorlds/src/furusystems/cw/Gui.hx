@@ -40,7 +40,7 @@ class Gui extends Sprite
 		deathMsg = new TextField();
 		deathMsg.autoSize = TextFieldAutoSize.LEFT;
 		deathMsg.mouseEnabled = false;
-		deathMsg.defaultTextFormat = new TextFormat("_sans", 42, 0, true);
+		deathMsg.defaultTextFormat = new TextFormat("_sans", 28, 0, true);
 		deathMsg.text = "Hello world";
 		blendMode = INVERT;
 		alpha = 0.8;

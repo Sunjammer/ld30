@@ -200,7 +200,7 @@ class Game extends Sprite
 				case LOVER(which):
 					gui.die("Death\nWORLD RECORD\n"+score);
 				case CHECKPOINT:
-					gui.die("Failed checkpoint\nWORLD RECORD\n"+score);
+					gui.die("Failed checkpoint\n(Throw across borders)\nWORLD RECORD\n"+score);
 			}
 			
 			Scoreoid.postScore("Developer", Std.int(score), true).addOnce(
@@ -216,7 +216,7 @@ class Game extends Sprite
 				case LOVER(which):
 					gui.die("Death\n"+score);
 				case CHECKPOINT:
-					gui.die("Failed checkpoint\n"+score);
+					gui.die("Failed checkpoint\nThrow across borders\n"+score);
 			}
 			Delta.delayCall(reset, 1);
 		}
@@ -228,7 +228,7 @@ class Game extends Sprite
 			case LOVER(which):
 				gui.die("Death\n"+score);
 			case CHECKPOINT:
-				gui.die("Failed checkpoint\n"+score);
+				gui.die("Failed checkpoint\nThrow across borders\n"+score);
 		}
 		#end
 		inverter.visible = true;

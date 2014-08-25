@@ -19,8 +19,6 @@ class Main extends Sprite
 	public function new() 
 	{
 		super();
-		
-		Scoreoid.init("029e454eafd50821c758866687738d5168c5d89e", "c10d43c62d");
 			
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}

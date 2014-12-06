@@ -54,7 +54,7 @@ class Gui extends Sprite
 		text = text.toUpperCase();
 		deathMsg.text = text;
 		deathMsg.x = 260;
-		var dims = deathMsg.getDims();
+		var dims = deathMsg.getPixelDims();
 		Delta.tween(deathMsg).prop("x", 190, 0.2).ease(Back.easeOut);
 		deathMsg.y = 240 - dims.height*0.5-dims.y;
 		deathMsg.visible = true;

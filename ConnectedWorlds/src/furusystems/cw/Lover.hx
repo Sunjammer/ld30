@@ -39,6 +39,7 @@ class Lover extends Sprite
 		}else {
 			gravity = new Vector2D(0, Game.GRAV*mass);
 		}
+		
 		redraw();
 		cacheAsBitmap = true;
 		normalIndicator = new Shape();
@@ -71,9 +72,10 @@ class Lover extends Sprite
 		}
 		
 		onGround = Math.abs(floor - y) < 8;
-		var key = !inverted?Keyboard.UP:Keyboard.DOWN;
+		var keyA = !inverted?Keyboard.UP:Keyboard.DOWN;
+		var keyB = !inverted?Keyboard.W:Keyboard.S;
 		
-		if ((jumpDelay -= Stopwatch.delta) <= 0 && Kbd.keyWasStruck(key) && onGround) {
+		if ((jumpDelay -= Stopwatch.delta) <= 0 && (Kbd.keyWasStruck(keyA) || Kbd.keyWasStruck(keyB)) && onGround) { 
 			jumpDelay = 0.2;
 			y = floor;
 			onGround = false;
@@ -99,9 +101,9 @@ class Lover extends Sprite
 				}
 			}
 		}
-		if (Kbd.keyIsDown(Keyboard.RIGHT)) {
+		if (Kbd.keyIsDown(Keyboard.RIGHT)||Kbd.keyIsDown(Keyboard.D)) {
 			velocity.x = MOVESPD;
-		}else if (Kbd.keyIsDown(Keyboard.LEFT)) {
+		}else if (Kbd.keyIsDown(Keyboard.RIGHT)||Kbd.keyIsDown(Keyboard.A)) {
 			velocity.x = -MOVESPD;
 		}
 		
